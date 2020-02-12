@@ -14,17 +14,14 @@ export default class StopWatch extends Component {
         counter: 0,
         hours: '00',
         minutes: '00',
-        seconds: '00',
-        startDisabled: false,
-        stopDisabled: true
+        seconds: '00'
     }
 
     constructor( props ) {
         super( props );
 
-        this.onButtonStart = this.onButtonStart.bind(this);
-        this.onButtonStop = this.onButtonStop.bind(this);
-        this.onButtonClear = this.onButtonClear.bind(this);
+        this.onStart = this.onStart.bind(this);
+        this.onStop = this.onStop.bind(this);
 
         this.onStarStop = this.onStarStop.bind(this);
         
@@ -32,7 +29,7 @@ export default class StopWatch extends Component {
     }
 
     componentDidMount() {
-        //this.start();
+        //
     }
 
     componentWillUnmount() {
@@ -68,18 +65,12 @@ export default class StopWatch extends Component {
         this.setState({timer});
     }
 
-    onButtonStart() {
+    onStart() {
         this.start();
         this.setState({timerTitle: 'STOP'});
     }
 
-
-    onButtonStop() {
-        clearInterval(this.state.timer);
-        this.setState({timerTitle: 'START'});
-    }
-
-    onButtonClear() {
+    onStop() {
         clearInterval(this.state.timer);
         this.setState({
             timerTitle: 'START',
@@ -93,10 +84,10 @@ export default class StopWatch extends Component {
 
     onStarStop() {
         if (this.state.timer != null) {
-            this.onButtonClear();
+            this.onStop();
             this.props.onParkingActionChange(false);
         } else {
-            this.onButtonStart();
+            this.onStart();
             this.props.onParkingActionChange(true);
         }
         
