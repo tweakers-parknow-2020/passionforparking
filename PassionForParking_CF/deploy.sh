@@ -1,0 +1,3 @@
+aws cloudformation package --template-file template.yaml --s3-bucket aws-sam-deployment-artifacts --output-template-file packaged-template.yaml --profile playpenprofile
+
+aws cloudformation deploy --template-file /Users/ali.koken/stash/tweakers-workshop-2020/PassionForParking_CF/packaged-template.yaml --stack-name "dev-enforcement-verification-city1" --parameter-overrides Environment=dev Platform=enforcement System=verification Subsystem=City1 Version=1.0.0 --tags Platform=enforcement System=verification Subsystem=City1 Environment=dev --profile playpenprofile --capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM" --role-arn arn:aws:iam::637422166946:role/sam-cloudformation-role

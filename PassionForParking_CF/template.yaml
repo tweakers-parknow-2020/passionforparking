@@ -26,9 +26,6 @@ Parameters:
     Version: 
         Type: String
         Description: Version information
-    CityName: 
-        Type: String
-        Description: Version information
     VerifyFunctionName: 
         Type: String
         Description: Version information
@@ -47,7 +44,7 @@ Globals:
           Application__Subsystem: !Ref Subsystem
           Application__Platform: !Ref Platform
 Resources:
-  APILambdaRoleStack:
+  LambdaRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, "lambdarole"] ]
@@ -104,16 +101,15 @@ Resources:
     Type: AWS::Serverless::Function 
     Properties:
       Role: !GetAtt LambdaRole.Arn
-      Runtime:  nodejs12.10
+      Runtime:  nodejs12.x
       MemorySize: 128
       Timeout: 10
-      CodeUri: src/verify
+      CodeUri: src/verify/
       Handler: app.lambda_handler
-      FunctionName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, !Ref CityName, !Ref VerifyFunctionName] ]
+      FunctionName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, !Ref VerifyFunctionName] ]
       Environment: 
         Variables:
           Application__Name: !Ref VerifyFunctionName
-      Tracing: !Ref LambdaTracingMode
       Events:
         PostEndpoint:
           Type: Api 
@@ -125,24 +121,22 @@ Resources:
   SqsQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, !Ref CityName] ]
+      QueueName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, "in"] ]
       DelaySeconds: 0
       ReceiveMessageWaitTimeSeconds: 0
       MaximumMessageSize: 262144
-      MessageRetentionPeriod: 4
   
   ProcessorFunction:
     Type: AWS::Serverless::Function
     Properties:
       Role: !GetAtt LambdaRole.Arn
-      Runtime:  nodejs12.10
+      Runtime:  nodejs12.x
       MemorySize: 512
       Timeout: 5
       ReservedConcurrentExecutions: 1
-      CodeUri: src/processor
+      CodeUri: src/processor/
       Handler: app.lambda_handler
-      FunctionName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, !Ref CityName, !Ref ProcessorFunctionName] ]
-      Tracing: Active
+      FunctionName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem,  !Ref ProcessorFunctionName] ]
       Environment: 
         Variables:
           Application__Name: !Ref ProcessorFunctionName
@@ -155,7 +149,7 @@ Resources:
   EnforcementTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
-      TableName: EnforcementTable
+      TableName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem,  "enforcement"] ]
       AttributeDefinitions:
         - AttributeName: parkId
           AttributeType: S
