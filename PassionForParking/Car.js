@@ -64,7 +64,7 @@ export default class Car extends Component {
 
 const styles = StyleSheet.create({
     animatedBox:{
-       marginTop: 200,
+       marginTop: 50,
        left: -380,
        width : 500,
        height: 373,

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import StopWatch from './StopWatch';
 import Car from './Car';
 
@@ -8,7 +8,8 @@ export default class App extends Component {
   constructor() {
     super();
     this.state = {
-      parkingActionStarted: false
+      parkingActionStarted: false,
+      licenseplate: "X-999-XX"
     }
 
     this.handleParkingActionChange = this.handleParkingActionChange.bind(this);
@@ -23,9 +24,13 @@ export default class App extends Component {
     
     return (
       <View style={styles.container}>
+        <View style={styles.licenceplateContainer}>
+            <Text style={styles.licenseplate}>{this.state.licenseplate}</Text>
+        </View>
         <Car
           startedParking={startedParkingAction}/>
         <View style={styles.bottom}>
+          
           <StopWatch
             onParkingActionChange={this.handleParkingActionChange}/>
         </View>
@@ -35,6 +40,18 @@ export default class App extends Component {
 }
 
 const styles = StyleSheet.create({
+  licenceplateContainer: {
+    marginTop: 50,
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#FAA421',
+    borderRadius: 5,
+  },
+  licenseplate: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#000'
+  },
   container: {
     flex: 1,
     alignItems: 'center',
