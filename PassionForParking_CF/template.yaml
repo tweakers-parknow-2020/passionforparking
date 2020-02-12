@@ -1,0 +1,172 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Advanced Passion for Parking
+Parameters:  
+    Environment: 
+        Type: String
+        Default: dev
+        AllowedValues: 
+        - dev
+        - test
+        - preprod
+        - prod
+        Description: Environment 
+    Platform: 
+        Type: String
+        AllowedValues: 
+        - parking
+        - enforcement
+        Description: platform information 
+    System: 
+        Type: String
+        Description: System information
+    Subsystem: 
+        Type: String
+        Description: Subsystem information
+    Version: 
+        Type: String
+        Description: Version information
+    CityName: 
+        Type: String
+        Description: Version information
+    VerifyFunctionName: 
+        Type: String
+        Description: Version information
+        Default: 'verify'
+    ProcessorFunctionName: 
+        Type: String
+        Description: Version information
+        Default: 'processor'
+Globals:
+  Function:
+    Environment:
+      Variables:
+          Application__Version: !Ref Version
+          Application__Environment: !Ref Environment
+          Application__System: !Ref System
+          Application__Subsystem: !Ref Subsystem
+          Application__Platform: !Ref Platform
+Resources:
+  APILambdaRoleStack:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, "lambdarole"] ]
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, "lambda_policy_sqs"] ]
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Sid: SQSAccess
+            Effect: Allow
+            Action:
+            - "sqs:ChangeMessageVisibility"
+            - "sqs:DeleteMessage"
+            - "sqs:GetQueue*"
+            - "sqs:PurgeQueue"
+            - "sqs:ReceiveMessage"
+            - "sqs:SendMessage"
+            - "sqs:SendMessageBatch"
+            Resource:
+            - !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${Environment}-${Platform}-${System}-${Subsystem}*
+      - PolicyName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, "lambda_policy_dynamodb"] ]
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Sid: DynamoDBAccess
+            Effect: Allow
+            Action:
+            - "dynamodb:BatchGet*"
+            - "dynamodb:DescribeStream"
+            - "dynamodb:DescribeTable"
+            - "dynamodb:Get*"
+            - "dynamodb:Query"
+            - "dynamodb:Scan"
+            - "dynamodb:BatchWrite*"
+            - "dynamodb:DeleteItem"
+            - "dynamodb:UpdateItem"
+            - "dynamodb:PutItem"
+            Resource:
+            - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${Environment}-${Platform}-${System}-${Subsystem}-*
+  WebApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Environment
+ 
+  VerifyFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      Role: !GetAtt LambdaRole.Arn
+      Runtime:  nodejs12.10
+      MemorySize: 128
+      Timeout: 10
+      CodeUri: src/verify
+      Handler: app.lambda_handler
+      FunctionName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, !Ref CityName, !Ref VerifyFunctionName] ]
+      Environment: 
+        Variables:
+          Application__Name: !Ref VerifyFunctionName
+      Tracing: !Ref LambdaTracingMode
+      Events:
+        PostEndpoint:
+          Type: Api 
+          Properties:
+            RestApiId: !Ref WebApi
+            Path: /verify
+            Method: GET  
+ 
+  SqsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, !Ref CityName] ]
+      DelaySeconds: 0
+      ReceiveMessageWaitTimeSeconds: 0
+      MaximumMessageSize: 262144
+      MessageRetentionPeriod: 4
+  
+  ProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt LambdaRole.Arn
+      Runtime:  nodejs12.10
+      MemorySize: 512
+      Timeout: 5
+      ReservedConcurrentExecutions: 1
+      CodeUri: src/processor
+      Handler: app.lambda_handler
+      FunctionName: !Join [ '-', [!Ref Environment, !Ref Platform, !Ref System, !Ref Subsystem, !Ref CityName, !Ref ProcessorFunctionName] ]
+      Tracing: Active
+      Environment: 
+        Variables:
+          Application__Name: !Ref ProcessorFunctionName
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt SqsQueue.Arn
+            BatchSize: 10
+  EnforcementTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: EnforcementTable
+      AttributeDefinitions:
+        - AttributeName: parkId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: parkId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5  
+Outputs:
+  ApiGatewayUrl:
+    Description: "API endpoint"
+    Value: !Sub "https://${WebApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/"
+ 
