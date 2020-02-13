@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Button } from 'react-native';
 import StopWatch from './StopWatch';
 import Car from './Car';
 
@@ -32,6 +32,7 @@ export default class App extends Component {
         <View style={styles.bottom}>
           
           <StopWatch
+            setForceStop={onForceStopWatch => this.onForceStopWatchChild = onForceStopWatch}
             onParkingActionChange={this.handleParkingActionChange}/>
         </View>
       </View>

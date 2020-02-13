@@ -24,12 +24,13 @@ export default class StopWatch extends Component {
         this.onStop = this.onStop.bind(this);
 
         this.onStarStop = this.onStarStop.bind(this);
+        this.onForceStop = this.onForceStop.bind(this);
         
         this.start = this.start.bind(this);
     }
 
     componentDidMount() {
-        //
+        this.props.setForceStop(this.onForceStop);
     }
 
     componentWillUnmount() {
@@ -90,7 +91,11 @@ export default class StopWatch extends Component {
             this.onStart();
             this.props.onParkingActionChange(true);
         }
-        
+    }
+
+    onForceStop() {
+        this.onStop();
+        this.props.onParkingActionChange(false);
     }
 
     render() {
