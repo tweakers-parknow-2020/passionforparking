@@ -133,7 +133,7 @@ Resources:
       Runtime: nodejs12.x
       MemorySize: 128
       Timeout: 10
-      CodeUri: s3://aws-sam-deployment-artifacts/ce53f0a6b58d21932a7bae53a6da74cc
+      CodeUri: s3://p4p-deployment-artifacts/559ff0d634621439bc33362feaab893b
       Handler: app.lambda_handler
       FunctionName:
         Fn::Join:
@@ -180,7 +180,7 @@ Resources:
       MemorySize: 512
       Timeout: 5
       ReservedConcurrentExecutions: 1
-      CodeUri: s3://aws-sam-deployment-artifacts/3662c6b6d0545c14a8cb816fa336383e
+      CodeUri: s3://p4p-deployment-artifacts/559ff0d634621439bc33362feaab893b
       Handler: app.lambda_handler
       FunctionName:
         Fn::Join:
