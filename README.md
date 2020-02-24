@@ -1,6 +1,6 @@
 # P4P (Passion for Parking) App
 
-P4P is an application created by Park Now employees during the [Tweakers development summit 2020 workshop](https://tweakers.net/partners/developerssummit2020/1094/parknow/)
+P4P is a companion app created by Park Now employees for the [Tweakers development summit 2020 workshop](https://tweakers.net/partners/developerssummit2020/1094/parknow/) called "Zero to production with serverless in AWS"
 
 ## Overview
 
@@ -9,13 +9,13 @@ During the workshop we are simulating that we are a new brand startup called P4P
 - Create an Android and iOS app which the main feature is start and stop a parking transaction. 
 - Create an API which can be integrated in Parking companies which can enforce the validation of the parking ticket.
 
-Due to the lack of technical background of the stakeholders, they decide to get the advise from an independent software development consultant, with the mission of picture them which is the quickest way to put in the market this first version of the system. 
+How to build this product with lack of technical knowledge and small amount of financial resources? So, they decide to get the advise from an independent software development consultant, with the mission of picture them which is the quickest way to go to production with this first version of the system. 
 
-## P4P First Iteration
+## P4P Technical roadmap
 
 After several meetings, the software development consultant present the following technical proposal:
 
-- **App Front-end**: Build the apps with [React Native](https://facebook.github.io/react-native/). React Native is a framework for building native apps using React. In the current stage, the startup is not in the position to hire one Android developer and one iOS developer that can maintain native development of the app. In the area of hybrid development, React Native is the best technical choice. Those are the main reasons:
+- **App Front-end**: Build the apps with [React Native](https://facebook.github.io/react-native/). React Native is a framework for building native apps using React. In the current stage, the startup is not in the position to hire one Android developer and one iOS developer who can maintain two different code bases. In the area of hybrid development, React Native is the best technical choice. Those are the main reasons:
 
     - Performance is pretty close to native.
     - Since the app does not need heavy processing of images or data, hybrid development is good option.
@@ -24,15 +24,13 @@ After several meetings, the software development consultant present the followin
     - The UI experience between Android and iOS is not very different so is possible reuse most of layouts. 
     - The maintenance can be done by the same developer
 
-- **Web Front-end**: Build the web app with [React](https://github.com/facebook/react). Very well-known Javascript library. 
-
-- **Back-end system**: Use third party cloud provider services to create and manage the API. As it mentioned, the startup has limited resources and the founders does not want to spend all the capital buying on-premise servers, hire devops and backend developers. They prefer paid as they use, so in case the idea does not successed when is in the market, they only will lose the investment done in the app development and the cloud provider expenses. Moreover, the cloud provider allow them to scale and do not paid for the resources that they do not use depending on the back-end workload (elasticity). Under this conditions, the advise is use [Amazon Web Services](https://aws.amazon.com/) as main cloud provider. To facilitate to the frontend developer manage entirely the backend with the minimum interaction, the consultant advise use [AWS AppSync](https://aws.amazon.com/appsync/) (GraphQL API) and the client SDK [AWS Amplify](https://aws.amazon.com/es/amplify/). Using this services, the frontend developers can manage the backend infrastructures, intregate easily in the front-ends, monitor the activity and the stakeholders can make use of the reporting tools to analyze the costs.
+- **Back-end system**: Use third party cloud provider services to create and manage the API. As it mentioned, the startup has limited resources and the founders does not want to spend all the capital buying on-premise servers, hire devops and backend developers. They prefer paid as they go, so in case the idea does not successed when is in the market, they only will lose the investment done in the app development and the cloud provider expenses. Moreover, the cloud provider allow them to scale and do not pay for the resources that they won't use. Under this conditions, the advise is use [Amazon Web Services](https://aws.amazon.com/) as main cloud provider. To facilitate to the frontend developer manage entirely the backend with the minimum interaction, the consultant advise use [AWS AppSync](https://aws.amazon.com/appsync/) (GraphQL API) and the client SDK [AWS Amplify](https://aws.amazon.com/es/amplify/). Using this services, the frontend developers can manage the backend infrastructures, intregate easily in the front-ends, monitor the activity and the stakeholders can make use of the reporting tools to analyze the costs.
 
 The company hire the first mobile developer with cloud knowledge with the task of create the first shipable version of their product. 
 
 ## Introduction to AWS Amplify
 
-AWS Amplify framework is an opinionated client framework for building scalable mobile and web apps. For many companies, approach cloud technologies is not straigth forward, so Amplify facilitates this transition giving to the developers a full set of development tools to go from app development to backend deployment from your terminal. 
+[AWS Amplify](https://aws.amazon.com/es/amplify/) framework is an opinionated client framework for building scalable mobile and web apps. For many companies, approach cloud technologies is not straigth forward, so Amplify facilitates this transition giving to the developers a full set of development tools to go from app development to backend deployment from your terminal. 
 
 ### Getting started with Amplify
 
@@ -40,7 +38,7 @@ AWS Amplify framework is an opinionated client framework for building scalable m
 
 2. Install the CLI:
    
-    - Install Node.js and npm if they are not already on your machine. The version requirements are:
+    - Install **Node.js** and **npm** if they are not already on your machine. The version requirements are:
        * Node.js >= 8.x
        * npm >= 5.x
        You can check your current version using `node -v` and `npm -v`
@@ -62,9 +60,9 @@ AWS Amplify framework is an opinionated client framework for building scalable m
 
    - The first thing the cli will ask you is to sign in your AWS Account console (https://console.aws.amazon.com/). Press `Enter` to go to the next step once you are ready.
 
-   - Now the cli will ask you about specify the region where you will. 
+   - Now the cli will ask you about specify the region where you will host your application. 
    
-        AWS has the concept of a **Region**, which is a physical location around the world where we cluster data centers. Each AWS Region consists of multiple, isolated, and physhically separate **Availability Zones** within a geographic area. Each Availability Zone has independent power, cooling, and physical security and is connected via redundant, ultra-low-latency networks.
+      AWS has the concept of a **Region**, which is a physical location around the world where we cluster data centers. Each AWS Region consists of multiple, isolated, and physhically separate **Availability Zones** within a geographic area. Each Availability Zone has independent power, cooling, and physical security and is connected via redundant, ultra-low-latency networks.
 
    - Next, you need to specify the username of the new IAM user. After giving a new a name to our user, the CLI will open the AWS Console and will open the wizard to create a new IAM User. It's recommended only give programmatic access. In the next step the CLI will propose us give full administration access to our new user, which seems contraintiutive if AWS at the same time is recommending apply the "Lease privilege principle". Here https://github.com/aws-amplify/amplify-cli/issues/351 you can have more information, how the community is working in adding only the policy of the servicer you will need. For the sake of this exercise we will create the user with full admin access. Once you have created the user, do not close the window because you will need to indicate in the CLI the `access_key` and the `secret_key` of the created user.
 
