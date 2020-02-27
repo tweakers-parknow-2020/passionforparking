@@ -74,18 +74,20 @@ The company hire the first mobile developer with cloud knowledge with the task o
 
 ## Creating a Backend for the first iteration of P4P app. 
 
+### Initialize your backend resources. 
+
 We used Expo CLI to create our first React Native app. In the `master` branch you have an app the functionaly have a button to start a parking, a counter to know how long is taking the parking and an animation that represents the car in and out of the parking. This app is suitable to run in almost any device (you should do some responsive adjustments to make it run in large devices).
 
-1. Checkout the `master` with `git checkout master`.
-2. Navigate to the main code of the app `cd PassionForParking`.
-3. Execute `expo start` to start the app.
+- Checkout the `master` with `git checkout master`.
+- Navigate to the main code of the app `cd PassionForParking`.
+- Execute `expo start` to start the app.
 
 The next step for our developer is create a backend which can keep track of that parking action occur in our app. So, now we can initialize AWS Amplify client in our project.
 
-1. Execute `amplify init`. With this command we are making our project amplify project. So we will able to use all the available features.
-2. Run the default settings the command line offer us. The app that we are building and the backend we are building are going to production directly.
-3. We will select the AWS profile we created before.
-4. AWS Amplify will start the process to create resources in order to create in your behalf backend
+- Execute `amplify init`. With this command we are making our project amplify project. So we will able to use all the available features.
+- Run the default settings the command line offer us. The app that we are building and the backend we are building are going to production directly.
+- We will select the AWS profile we created before.
+- AWS Amplify will start the process to create resources in order to create in your behalf backend
 resources, take a look about what Amplify created:
 
 ```
@@ -98,43 +100,47 @@ CREATE_IN_PROGRESS DeploymentBucket                     AWS::S3::Bucket         
 CREATE_IN_PROGRESS amplify-passionforparking-prod-10311 AWS::CloudFormation::Stack Wed Feb 12 2020 01:03:13 GMT+0100 (Central European Standard Time) User Initiated
 ```
 
-AWS Amplify created in your behalf a role which can be authorized to deploy backend resources. And it created a S3 bucket which will be use as kind of build server to host all the backend object required during your new builds.
+AWS Amplify created in your behalf a role which can be authorized to deploy backend resources. It creates a S3 bucket which will be use as build server to host all the backend object required during your new builds.
 
 Now, let's create a GraphQL API:
 
+### Create your API
+
+`
+Note:
 If you are not familiar with GraphQL, could be good start the following tutorial: https://graphql.org/learn/
+`
 
-If you want to see the final code you can checkout the branch `adding-backend` with `git checkout -b adding-backend origin/adding-backend`
-
-If you want to do step by step yourself, check the following guide:
-
-1. In the root of your project perform `amplify add api`. 
-2. Select `GraphQL` 
-3. For this example you will use the `API Key` to access your API. If you want to add authentication for our app we 
+- In the root of your project perform `amplify add api`. 
+- Select `GraphQL` 
+- For this example you will use the `API Key` to access your API. If you want to add authentication for our app we 
 can use `Amazon Cognito User Pool` for the whole authentication circle.
-4. We are not going use `annotated schema`
-5. Choose `Yes` for the option `guided schema creation`. The CLI will ask for the name of our type. After this our code editor will be open. This will open the editor and we can type the following schema:
+- We are not going use `annotated schema`
+- Choose `Yes` for the option `guided schema creation`. The CLI will ask for the name of our type. After this our code editor will be open. This will open the editor and we can type the following schema:
 
 ```
 type Parking @model {
   id: ID!
   userID: Int
+  licensePlate: String
   latitude: Float
   longitude: Float
   createdAt: String
   stoppedAt: String
-  duration: Int 
+  state: String
 }
 ```
 
 Because we are not authenticate users in this example, we simple hardcode userID, sames as locations. 
 
-6. Execute `amplify push`. AWS Amplify will start the process to create all the resources for the API, set up the different configuration files.
-7. During the `push` process the system will ask you if you want to generate the code automatically to integrate in your app.
+- Execute `amplify push`. AWS Amplify will start the process to create all the resources for the API, set up the different configuration files.
+- During the `push` process the system will ask you if you want to generate the code automatically to integrate in your app.
+
+### Underhood of an Amplify project
 
 Let's take a look of the code generated by the Amplify client:
 
-- Inside of the `backend/api` we have some interesting files:
+Inside of the `backend/api` we have some interesting files:
   
   * `schema.graphql`: Will give you an overview of the API GraphQL schema
   * Folder `awscloudformation/nested-cloudformation-stack`. AWS Amplify use AWS Cloudformation (Infrastructure as Code) to define the services AWS Amplify needs to deploy. So, from out frontend, we are deploying backend resources using Infrastructure as Code.
@@ -142,7 +148,7 @@ Let's take a look of the code generated by the Amplify client:
 
   * Inside of `src/graphql`, the client generate for us all the code related with the all the possible operations in our API. We have operative API, documented through schema definition!.
 
-8. Finally we only need to add the code to interact with the API. If you checkedout the `adding-backend` branch and open App.js you will see the added code. Basically the code
+- Finally we only need to add the code to interact with the API. If you checkedout the `adding-backend` branch and open App.js you will see the added code. Basically the code
 does:
 
   * Import all the required amplify libraries required.
@@ -168,3 +174,58 @@ does:
   ```
 
 The small version P4P is ready to go to production from a command line tool and bit of frontend.
+
+### Adding GraphQL API interactions.
+
+In the previous step we created from our CLI a working API for our frontend. Let's change our code to be able to interact with out API and let's go through the different actions that we have availble.
+
+#### Mutations
+
+The first goal of our app is to provide the ability to start and stop parking actions. To allow that, our API created from our model a list of mutation operations. How do we know the list of operations available for the api? During the creation the backend we let the CLI generate the code for us. The generated code we will be able to find in `src/graphql` (if we did not change the default folder). 
+
+Let's focus in the file `mutations.js`. We have availabe two operations `createParking` and `updateParking` which represent two mutations over the `ParkingAction` model available GraphQL API. You will need to do the following changes in your app in order to make use of thos mutations:
+
+`
+Note:
+If you explore more the generated code folder, you will release other files available. In queries.js you will have available the basic queries to your model which probably will be enough to use in your application. subscription.js will give you the real time updates operation. Subscriptions is a GraphQ feature available in many GraphQL server implementations which basically open a socket communication with the server allowing real time updates. 
+`
+
+Go to the following Gist: https://gist.github.com/tweakers-parknow-2020/35e23975e66c055b61f80f7bdd35c49f so you can copy the main modifications that we need to do to add the code necessary to interact with the API. Let's
+
+The most important part of the changes are the two functions we create to operate against our API:
+
+```
+createParking = async () => {
+    this.parkingAction = { ...initialParkingAction };
+    this.parkingAction.createdAt = new Date().toLocaleString();
+    const createParkingInput = {
+      input: this.parkingAction
+    };
+    
+    const newParking = await API.graphql(graphqlOperation(createParking, createParkingInput));
+    this.parkingAction.id = newParking.data.createParking.id;
+    
+    // For debugging purposes. You will able to see the result 
+    // of your operations
+    console.log(JSON.stringify(newParking));
+  };
+```
+```
+stopParking = async () => {
+    this.parkingAction.stoppedAt = new Date().toLocaleString();
+    this.parkingAction.state = "STOP";
+    const updateParkingInput = {
+      input: this.parkingAction
+    };
+  
+    const updatedParking = await API.graphql(graphqlOperation(updateParking, updateParkingInput));
+
+    // For debugging purposes. You will able to see the result 
+    // of your operations
+    console.log(JSON.stringify(updatedParking));
+  };
+```
+
+In both cases the interface is simple:
+
+We use `await API.graphql(...);` to asynchronosly create a GraphQL request.  We will pass a `graphqlOperation` method with two parameters: the string operation that represents the query we will like to perform. In out case is `createParking` and the input we will need pass to the query to be able to perform the operation. 
