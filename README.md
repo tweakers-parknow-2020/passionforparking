@@ -1,21 +1,21 @@
-# P4P (Passion for Parking) App
+# P4P (Passion for Parking) App 😍
 
 P4P is a companion app created by Park Now employees for the [Tweakers development summit 2020 workshop](https://tweakers.net/partners/developerssummit2020/1094/parknow/) called "Zero to production with serverless in AWS"
 
 ## Overview
 
-During the workshop we are simulating that we are a new brand startup called P4P (Passion for Parking). The startup founders are convinced that they can bring value to the parking industry. They are passionate founders. However, as any startup, they have limited development resources. In their minds the first business iteration is clear:
+In this workshop, we are simulating that we are a new brand startup called P4P (Passion for Parking). The startup founders are convinced that they can bring value to the parking industry. They are passionate founders. However, as any startup, they have limited development resources. In their minds the first business iteration is clear:
 
 - Create an Android and iOS app which the main feature is start and stop a parking transaction. 
 - Create an API which can be integrated in Parking companies which can enforce the validation of the parking ticket.
 
-How to build this product with lack of technical knowledge and small amount of financial resources? So, they decide to get the advise from an independent software development consultant, with the mission of picture them which is the quickest way to go to production with this first version of the system. 
+But, how to build this product with lack of technical knowledge and small amount of financial resources? So, they decide to get the advise from an independent software development consultant, with the mission of picture them which is the quickest way to go to production with this first version of the system. 
 
 ## P4P Technical roadmap
 
 After several meetings, the software development consultant present the following technical proposal:
 
-- **App Front-end**: Build the apps with [React Native](https://facebook.github.io/react-native/). React Native is a framework for building native apps using React. In the current stage, the startup is not in the position to hire one Android developer and one iOS developer who can maintain two different code bases. In the area of hybrid development, React Native is the best technical choice. Those are the main reasons:
+- 📱 **App Front-end**: Build the apps with [React Native](https://facebook.github.io/react-native/). React Native is a framework for building native apps using React. In the current stage, the startup is not in the position to hire two developers who can maintain two different code bases (native Android and iOS code). In the area of hybrid development, React Native is the best technical choice. Those are the main reasons:
 
     - Performance is pretty close to native.
     - Since the app does not need heavy processing of images or data, hybrid development is good option.
@@ -27,6 +27,12 @@ After several meetings, the software development consultant present the followin
 - **Back-end system**: Use third party cloud provider services to create and manage the API. As it mentioned, the startup has limited resources and the founders does not want to spend all the capital buying on-premise servers, hire devops and backend developers. They prefer paid as they go, so in case the idea does not successed when is in the market, they only will lose the investment done in the app development and the cloud provider expenses. Moreover, the cloud provider allow them to scale and do not pay for the resources that they won't use. Under this conditions, the advise is use [Amazon Web Services](https://aws.amazon.com/) as main cloud provider. To facilitate to the frontend developer manage entirely the backend with the minimum interaction, the consultant advise use [AWS AppSync](https://aws.amazon.com/appsync/) (GraphQL API) and the client SDK [AWS Amplify](https://aws.amazon.com/es/amplify/). Using this services, the frontend developers can manage the backend infrastructures, intregate easily in the front-ends, monitor the activity and the stakeholders can make use of the reporting tools to analyze the costs.
 
 The company hire the first mobile developer with cloud knowledge with the task of create the first shipable version of their product. 
+
+## First version of the app (without backend) 🥳
+
+After accept the technical roadmap the founders hire a freelance designer to build the design. Once the design is ready, the solo-frontend developer in the company set up a React Native project and he build the layout acording the design. In the first sprint demo the solo-frontend present the following app:
+
+![First version of the app](assets/workshop_1.gif)
 
 ## Introduction to AWS Amplify
 
@@ -56,13 +62,13 @@ The company hire the first mobile developer with cloud knowledge with the task o
 
 3. Configure AWS Amplify through CLI
 
-   - Run `amplify configure`
+   - Go to your terminal and run `amplify configure`
 
    - The first thing the cli will ask you is to sign in your AWS Account console (https://console.aws.amazon.com/). Press `Enter` to go to the next step once you are ready.
 
    - Now the cli will ask you about specify the region where you will host your application. 
    
-      AWS has the concept of a **Region**, which is a physical location around the world where we cluster data centers. Each AWS Region consists of multiple, isolated, and physhically separate **Availability Zones** within a geographic area. Each Availability Zone has independent power, cooling, and physical security and is connected via redundant, ultra-low-latency networks.
+      > AWS has the concept of a **Region**, which is a physical location around the world where we cluster data centers. Each AWS Region consists of multiple, isolated, and physhically separate **Availability Zones** within a geographic area. Each Availability Zone has independent power, cooling, and physical security and is connected via redundant, ultra-low-latency networks.
 
    - Next, you need to specify the username of the new IAM user. After giving a new a name to our user, the CLI will open the AWS Console and will open the wizard to create a new IAM User. It's recommended only give programmatic access. In the next step the CLI will propose us give full administration access to our new user, which seems contraintiutive if AWS at the same time is recommending apply the "Lease privilege principle". Here https://github.com/aws-amplify/amplify-cli/issues/351 you can have more information, how the community is working in adding only the policy of the servicer you will need. For the sake of this exercise we will create the user with full admin access. Once you have created the user, do not close the window because you will need to indicate in the CLI the `access_key` and the `secret_key` of the created user.
 
@@ -70,7 +76,7 @@ The company hire the first mobile developer with cloud knowledge with the task o
 
     - At the end of this process the CLI will ask you about the name for the profile file that the cli will create in your computer to easy access during the framework usage. It is recommended use meaninful name in case have different profile for different usages.
 
-    Congratulations! Your AWS Amplify is configure and ready to integrate in your application.
+    Congratulations! 🤙 Your AWS Amplify is configure and ready to integrate in your application.
 
 ## Creating a Backend for the first iteration of P4P app. 
 
@@ -106,10 +112,8 @@ Now, let's create a GraphQL API:
 
 ### Create your API
 
-`
-Note:
-If you are not familiar with GraphQL, could be good start the following tutorial: https://graphql.org/learn/
-`
+> If you are not familiar with GraphQL, could be good start the following tutorial: https://graphql.org/learn/
+
 
 - In the root of your project perform `amplify add api`. 
 - Select `GraphQL` 
@@ -148,31 +152,6 @@ Inside of the `backend/api` we have some interesting files:
 
   * Inside of `src/graphql`, the client generate for us all the code related with the all the possible operations in our API. We have operative API, documented through schema definition!.
 
-- Finally we only need to add the code to interact with the API. If you checkedout the `adding-backend` branch and open App.js you will see the added code. Basically the code
-does:
-
-  * Import all the required amplify libraries required.
-
-  ```
-  import Amplify, { Analytics, Storage, API, graphqlOperation } from 'aws-amplify';
-  import { createParking, updateParking } from './src/graphql/mutations';
-
-  // Configure your API
-  import config from './aws-exports'
-  ```
-
-  * Initialize the GraphQL API object.
-
-  ```
-  API.configure(config)
-  ```
-
-  * Interact with the API using the generated code.
-
-  ```
-  await API.graphql(graphqlOperation(createParking, createParkingInput));
-  ```
-
 The small version P4P is ready to go to production from a command line tool and bit of frontend.
 
 ### Adding GraphQL API interactions.
@@ -185,14 +164,29 @@ The first goal of our app is to provide the ability to start and stop parking ac
 
 Let's focus in the file `mutations.js`. We have availabe two operations `createParking` and `updateParking` which represent two mutations over the `ParkingAction` model available GraphQL API. You will need to do the following changes in your app in order to make use of thos mutations:
 
-`
-Note:
-If you explore more the generated code folder, you will release other files available. In queries.js you will have available the basic queries to your model which probably will be enough to use in your application. subscription.js will give you the real time updates operation. Subscriptions is a GraphQ feature available in many GraphQL server implementations which basically open a socket communication with the server allowing real time updates. 
-`
+> If you explore more the generated code folder, you will release other files available. In queries.js you will have available the basic queries to your model which probably will be enough to use in your application. subscription.js will give you the real time updates operation. Subscriptions is a GraphQ feature available in many GraphQL server implementations which basically open a socket communication with the server allowing real time updates. 
 
 Go to the following Gist: https://gist.github.com/tweakers-parknow-2020/35e23975e66c055b61f80f7bdd35c49f so you can copy the main modifications that we need to do to add the code necessary to interact with the API. Let's
 
 The most important part of the changes are the two functions we create to operate against our API:
+
+* Import all the required amplify libraries required.
+
+```
+import Amplify, { Analytics, Storage, API, graphqlOperation } from 'aws-amplify';
+import { createParking, updateParking } from './src/graphql/mutations';
+
+// Configure your API
+import config from './aws-exports'
+```
+
+* Initialize the GraphQL API object.
+
+```
+API.configure(config)
+```
+
+* Interact with the API using the generated code.
 
 ```
 createParking = async () => {
@@ -226,6 +220,24 @@ stopParking = async () => {
   };
 ```
 
-In both cases the interface is simple:
+Interacting with the GraphQL from our generated code is simple. We use `await API.graphql(...);` to asynchronosly create a GraphQL request. We will pass a `graphqlOperation` method with two parameters: the string operation that represents the query we will like to perform. In out case is `createParking` and the input we will need pass to the query to be able to perform the operation. 
 
-We use `await API.graphql(...);` to asynchronosly create a GraphQL request.  We will pass a `graphqlOperation` method with two parameters: the string operation that represents the query we will like to perform. In out case is `createParking` and the input we will need pass to the query to be able to perform the operation. 
+## P4P Phase 2 (2th part of the workshop)
+
+Our company is making good money 💵. We are hiring new developers and we are really proud of what we achieved managing all our backend from the frontend. In the second part of the workshop we focused in explain the implications for a company that wants to scale and who this impact in the current setup. Those are common petfalls of using Amplify:
+
+- All the stacks and resources created by Amplify are named on behalf of you. So, does not follow any specific pattern. If you scale the number of stacks (lambdas, dynamos and other services) will be really difficult to keep track of what stack belongs to which system. 
+
+- If your team started to grow, it is common to have a team dedicated on infrastructure. This team probably would like to deploy and manage the stack separetly from the frontend. It's important to understand how with Amplify you can add existing API's (separation of concerns).
+
+- Using Amplify, the security from the developer perspective can be very basic and does not follow practices like "lease privilege principle" for teams at scale.
+
+- If you achieve this separation of concerns, you will be able to:
+
+  - Create your infrastructure naming conventions.
+  - Tagging resources.
+  - Manage the security. 
+  - Use the full power of IoC (Infrastructure as Code).
+  - Monitoring.
+
+In the project [PassionnForParking_CF](/PassionForParking_CF) which you can find in this repository, you have a sample how to do similar backend setup by defined directly in a `template.yaml` file which we define the resources we need and the interactions between them. 
